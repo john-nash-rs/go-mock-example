@@ -33,23 +33,30 @@ func InsertUser(db *gorm.DB, newUser *User) error {
 }
 
 func main() {
-	// Create a new user
+
+	//example()
+
+	ExampleWithValidation()
+
+	fmt.Println("User inserted successfully")
+}
+
+// Create a new user
+// Connect to the database
+// Insert the user into the database
+func example() {
 	newUser := &User{
 		Name:  "Jane Doe",
 		Email: "jane@example.com",
 	}
 
-	// Connect to the database
 	db, err := ConnectDB()
 	if err != nil {
 		panic("Failed to connect to database")
 	}
 
-	// Insert the user into the database
 	err = InsertUser(db, newUser)
 	if err != nil {
 		panic("Failed to insert user")
 	}
-
-	fmt.Println("User inserted successfully")
 }
