@@ -1,10 +1,10 @@
 package main
 
 import (
-	"strings"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/stretchr/testify/assert"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -77,15 +77,8 @@ func TestSaveUser_InvalidEmail(t *testing.T) {
 
 	// Call the SaveUser method
 	err = SaveUser(gormDB, newUser)
-
-	if err == nil {
-		t.Error("Expected email validation error, but no error was returned")
-	} else {
-		expectedError := "Invalid email"
-		if !strings.Contains(err.Error(), expectedError) {
-			t.Errorf("Expected error '%s', but got '%s'", expectedError, err.Error())
-		}
-	}
+	expectedError := "Invalid email"
+	assert.Equal(t, expectedError, err.Error(), "In case of invalid email, message is wrong")
 
 	// Verify that all expectations were met
 	err = mock.ExpectationsWereMet()
