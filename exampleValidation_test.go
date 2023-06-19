@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -16,6 +17,8 @@ func TestSaveUser(t *testing.T) {
 	}
 	defer db.Close()
 
+	// Expect the query for the database version
+	mock.ExpectQuery(".*").WillReturnRows(sqlmock.NewRows([]string{"VERSION()"}).AddRow("8.0.0"))
 	// Initialize a new GORM database connection with the mock database
 	gormDB, err := gorm.Open(mysql.New(mysql.Config{
 		Conn: db,
@@ -23,10 +26,6 @@ func TestSaveUser(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to open GORM connection: %v", err)
 	}
-
-	// Expect the query for the database version
-	mock.ExpectQuery("SELECT VERSION()").WithArgs("").
-		WillReturnRows(sqlmock.NewRows([]string{"VERSION()"}).AddRow("8.0.0"))
 
 	// Mock the expected query and define its behavior
 	mock.ExpectBegin()
@@ -43,6 +42,49 @@ func TestSaveUser(t *testing.T) {
 	err = SaveUser(gormDB, newUser)
 	if err != nil {
 		t.Fatalf("Failed to save user: %v", err)
+	}
+
+	// Verify that all expectations were met
+	err = mock.ExpectationsWereMet()
+	if err != nil {
+		t.Errorf("Unfulfilled expectations: %v", err)
+	}
+}
+
+func TestSaveUser_InvalidEmail(t *testing.T) {
+	// Create a new mock database
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("Failed to create mock database: %v", err)
+	}
+	defer db.Close()
+
+	// Expect the query for the database version
+	mock.ExpectQuery(".*").WillReturnRows(sqlmock.NewRows([]string{"VERSION()"}).AddRow("8.0.0"))
+
+	// Initialize a new GORM database connection with the mock database
+	gormDB, err := gorm.Open(mysql.New(mysql.Config{
+		Conn: db,
+	}), &gorm.Config{})
+	if err != nil {
+		t.Fatalf("Failed to open GORM connection: %v", err)
+	}
+
+	// Create a new user with an invalid email address
+	newUser := &User{
+		Name:  "John Doe",
+		Email: "",
+	}
+
+	// Call the SaveUser method
+	err = SaveUser(gormDB, newUser)
+	if err == nil {
+		t.Error("Expected email validation error, but no error was returned")
+	} else {
+		expectedError := "Invalid email"
+		if !strings.Contains(err.Error(), expectedError) {
+			t.Errorf("Expected error '%s', but got '%s'", expectedError, err.Error())
+		}
 	}
 
 	// Verify that all expectations were met

@@ -14,6 +14,7 @@ func IsValidEmail(email string) bool {
 }
 
 func SaveUser(db *gorm.DB, newUser *User) error {
+	fmt.Println(" --- Hello ---")
 	// Validate name
 	if newUser.Name == "" {
 		return fmt.Errorf("Name cannot be empty")

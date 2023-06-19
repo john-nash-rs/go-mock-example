@@ -34,7 +34,7 @@ func InsertUser(db *gorm.DB, newUser *User) error {
 
 func main() {
 
-	//example()
+	example()
 
 	ExampleWithValidation()
 

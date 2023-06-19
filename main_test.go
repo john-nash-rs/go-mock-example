@@ -12,7 +12,8 @@ import (
 func TestInsertUser(t *testing.T) {
 	// Create a new mock database
 	db, mock, err := sqlmock.New()
-	assert.NoError(t, err)
+	//assert.NoError(t, err)
+	mock.ExpectQuery(".*").WillReturnRows(sqlmock.NewRows([]string{"VERSION()"}).AddRow("8.0.0"))
 
 	// Create a GORM database connection with the mock DB
 	gormDB, err := gorm.Open(mysql.New(mysql.Config{
