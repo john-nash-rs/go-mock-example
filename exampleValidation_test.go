@@ -72,12 +72,12 @@ func TestSaveUser_InvalidEmail(t *testing.T) {
 
 	// Create a new user with an invalid email address
 	newUser := &User{
-		Name:  "John Doe",
-		Email: "",
+		Name: "John Doe",
 	}
 
 	// Call the SaveUser method
 	err = SaveUser(gormDB, newUser)
+
 	if err == nil {
 		t.Error("Expected email validation error, but no error was returned")
 	} else {
